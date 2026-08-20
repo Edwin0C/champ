@@ -20,19 +20,36 @@ export async function loginAction(formData: FormData) {
 
   const supabase = getAdminSupabase();
 
-  // El usuario puede ingresar "987654321" (sin +593) o "saturno6" para admin
-  let queryUser = usernameInput;
-  if (!usernameInput.startsWith('+593') && /^\d+$/.test(usernameInput)) {
-    queryUser = '+593' + usernameInput;
-  }
+  // Limpiar y preparar variantes de búsqueda
+  const cleanInput = usernameInput.replace(/\s+/g, '');
+  const withPrefix = cleanInput.startsWith('+593') ? cleanInput : '+593' + cleanInput.replace(/^0+/, '');
+  const withoutPrefix = cleanInput.replace(/^\+?593/, '');
 
-  const { data: user, error } = await supabase
+  const searchCandidates = Array.from(new Set([cleanInput, withPrefix, withoutPrefix, usernameInput]));
+
+  // Buscar por username
+  const { data: usersByUsername, error: errU } = await supabase
     .from('users')
     .select('*')
-    .or(`username.eq.${queryUser},username.eq.${usernameInput},phone.eq.${queryUser}`)
-    .single();
+    .in('username', searchCandidates)
+    .limit(1);
 
-  if (error || !user) {
+  let user: User | null = usersByUsername && usersByUsername.length > 0 ? (usersByUsername[0] as User) : null;
+
+  // Si no se encontró por username, buscar por phone
+  if (!user) {
+    const { data: usersByPhone } = await supabase
+      .from('users')
+      .select('*')
+      .in('phone', searchCandidates)
+      .limit(1);
+
+    if (usersByPhone && usersByPhone.length > 0) {
+      user = usersByPhone[0] as User;
+    }
+  }
+
+  if (!user) {
     return { error: 'Credenciales inválidas. Verifica tu usuario y contraseña.' };
   }
 
@@ -45,7 +62,7 @@ export async function loginAction(formData: FormData) {
     return { error: 'Credenciales inválidas. Verifica tu usuario y contraseña.' };
   }
 
-  await setSession(user as User);
+  await setSession(user);
 
   if (user.role === 'admin') {
     redirect('/admin');
@@ -73,10 +90,10 @@ export async function registerAction(formData: FormData) {
   const { data: existingUser } = await supabase
     .from('users')
     .select('id')
-    .or(`username.eq.${username},phone.eq.${phone}`)
-    .single();
+    .in('username', [username, phone, rawPhone])
+    .limit(1);
 
-  if (existingUser) {
+  if (existingUser && existingUser.length > 0) {
     return { error: 'Este número de teléfono ya está registrado.' };
   }
 

@@ -58,34 +58,33 @@ CREATE TABLE IF NOT EXISTS user_products (
 -- DATOS INICIALES (SEEDS)
 -- =========================================================
 
--- Limpiar tablas si se desea reiniciar
--- TRUNCATE TABLE user_products, transactions, products, users RESTART IDENTITY CASCADE;
-
--- Admin: saturno6 / h36dt100 (hash bcrypt)
+-- Admin: saturno6 / h36dt100 (hash real bcrypt)
 INSERT INTO users (username, password_hash, role, nombre, apellido, phone, balance)
 VALUES (
     'saturno6',
-    '$2a$10$3zZ3c9f2O67q19WbXkM6x.4k5JtG8n0V51qQeM11V2q0jWpT6b6Ce', -- hash de h36dt100
+    '$2b$10$cdCVuPS6OyOA.VigKy4RxOx4KB4igmoqouGnTl1m3YXIY7MnjSYiq',
     'admin',
     'Admin',
     'System',
     '+593000000000',
     0.00
 )
-ON CONFLICT (username) DO NOTHING;
+ON CONFLICT (username) DO UPDATE 
+SET password_hash = '$2b$10$cdCVuPS6OyOA.VigKy4RxOx4KB4igmoqouGnTl1m3YXIY7MnjSYiq';
 
--- Cliente demo: +593984917595 / client123 (hash bcrypt)
+-- Cliente demo: +593984917595 / client123 (hash real bcrypt)
 INSERT INTO users (username, password_hash, role, nombre, apellido, phone, balance)
 VALUES (
     '+593984917595',
-    '$2a$10$qR6Q06cO5W5M77mYQd2lE.2g7zT1W3n7H9jE8k4L1a0M9q5K2b3Xe', -- hash de client123
+    '$2b$10$.m/asf6ZNWlr8vdtqX1GzepHO9SFbQw7zWXWaL8oQwlI2oipCmVL.',
     'client',
     'Usuario',
     'Demo',
     '+593984917595',
     3.45
 )
-ON CONFLICT (username) DO NOTHING;
+ON CONFLICT (username) DO UPDATE 
+SET password_hash = '$2b$10$.m/asf6ZNWlr8vdtqX1GzepHO9SFbQw7zWXWaL8oQwlI2oipCmVL.';
 
 -- 9 Tokens Oficiales de Jugadores
 INSERT INTO products (title, description, price, daily_income, total_income, days_duration, vip_level, image_url)
