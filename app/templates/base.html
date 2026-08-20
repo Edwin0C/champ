@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChampionsVIP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'liga-blue': '#003893',
+                        'liga-dark': '#001F4E',
+                        'liga-yellow': '#FFD100',
+                        'liga-gold': '#FFE566',
+                        'liga-red': '#E30613',
+                        'liga-light': '#F5F6FA',
+                        'liga-white': '#FFFFFF',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5F6FA;
+        }
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body class="bg-liga-light min-h-screen flex justify-center">
+
+    <!-- Mobile Container -->
+    <div class="w-full max-w-md bg-white min-h-screen shadow-2xl relative flex flex-col">
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div id="flashContainer"
+            class="fixed top-4 left-1/2 transform -translate-x-1/2 w-11/12 max-w-sm z-50 space-y-2 transition-opacity duration-500">
+            {% for category, message in messages %}
+            <div
+                class="p-4 rounded-lg shadow-lg text-sm font-medium 
+                    {% if category == 'success' %}bg-green-600 text-white{% elif category == 'danger' %}bg-liga-red text-white{% else %}bg-liga-blue text-white{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        <script>
+            setTimeout(function () {
+                var fc = document.getElementById('flashContainer');
+                if (fc) {
+                    fc.style.opacity = '0';
+                    setTimeout(function () { fc.remove(); }, 500);
+                }
+            }, 5000);
+        </script>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Main Content -->
+        <main class="flex-grow pb-24">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Bottom Navigation (Only show if logged in and not admin) -->
+        {% if current_user.is_authenticated and current_user.role != 'admin' and not hide_nav %}
+        <nav class="fixed bottom-0 w-full max-w-md bg-liga-dark border-t border-liga-blue z-40">
+            <div class="grid grid-cols-3 h-16">
+                <a href="{{ url_for('client.dashboard') }}"
+                    class="flex flex-col items-center justify-center text-gray-400 hover:text-liga-yellow {% if request.endpoint == 'client.dashboard' %}text-liga-yellow{% endif %}">
+                    <i class="fas fa-home text-xl mb-1"></i>
+                    <span class="text-xs">Inicio</span>
+                </a>
+                <a href="{{ url_for('client.my_products') }}"
+                    class="flex flex-col items-center justify-center text-gray-400 hover:text-liga-yellow {% if request.endpoint == 'client.my_products' %}text-liga-yellow{% endif %}">
+                    <i class="fas fa-shopping-bag text-xl mb-1"></i>
+                    <span class="text-xs">Mis productos</span>
+                </a>
+                <a href="{{ url_for('client.profile') }}"
+                    class="flex flex-col items-center justify-center text-gray-400 hover:text-liga-yellow {% if request.endpoint == 'client.profile' %}text-liga-yellow{% endif %}">
+                    <i class="fas fa-user text-xl mb-1"></i>
+                    <span class="text-xs">Mi cuenta</span>
+                </a>
+            </div>
+        </nav>
+        {% endif %}
+    </div>
+
+</body>
+
+</html>

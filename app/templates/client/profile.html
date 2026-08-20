@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Header with Balance -->
+<div class="bg-gradient-to-b from-liga-dark to-liga-blue pt-8 pb-16 px-6 rounded-b-[3rem] text-white relative shadow-lg">
+    <!-- Back Button & Title -->
+    <div class="flex items-center mb-6">
+        <a href="{{ url_for('client.dashboard') }}"
+            class="w-8 h-8 flex items-center justify-center bg-white/20 rounded-lg">
+            <i class="fas fa-chevron-left text-sm"></i>
+        </a>
+        <div class="ml-4 flex items-center">
+            <div class="w-10 h-10 rounded-full bg-liga-yellow flex items-center justify-center border-2 border-liga-gold">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" class="w-7 h-7 object-contain">
+            </div>
+            <span class="ml-3 font-bold text-lg">{{ current_user.username }}</span>
+        </div>
+    </div>
+
+    <!-- Balance Card -->
+    <div class="bg-white rounded-2xl p-6 text-gray-800 shadow-xl mx-auto w-full relative z-10">
+        <p class="text-liga-blue text-sm font-medium mb-1">Saldo de la cuenta</p>
+        <h2 class="text-3xl font-bold text-liga-dark mb-6">USD {{ "%.2f"|format(current_user.balance) }}</h2>
+
+        <div class="grid grid-cols-2 gap-4">
+            <a href="{{ url_for('client.recharge') }}"
+                class="bg-gradient-to-b from-liga-gold to-liga-yellow hover:from-liga-yellow hover:to-yellow-400 text-liga-dark py-3 rounded-full font-bold text-center shadow-md transition">
+                Recargar
+            </a>
+            <a href="{{ url_for('client.withdrawal_account') }}"
+                class="bg-liga-blue hover:bg-liga-dark text-white py-3 rounded-full font-bold text-center shadow-md transition">
+                Retirar
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Bar -->
+<div
+    class="bg-liga-blue mt-[-4rem] pt-20 pb-4 px-6 rounded-b-[2rem] text-white flex justify-between text-center text-sm mb-4 shadow-md z-0 relative">
+    <div>
+        <div class="font-bold opacity-80">Recargar</div>
+        <div>USD 0</div>
+    </div>
+    <div>
+        <div class="font-bold opacity-80">Retirar</div>
+        <div>USD 0</div>
+    </div>
+    <div>
+        <div class="font-bold opacity-80">Mis productos</div>
+        <div>0</div>
+    </div>
+</div>
+
+<!-- Menu Grid -->
+<div class="px-4 grid grid-cols-2 gap-4 pb-6">
+    <a href="{{ url_for('client.records', type='recharge') }}"
+        class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col items-center hover:shadow-md hover:border-liga-yellow transition">
+        <i class="fas fa-chart-bar text-liga-blue text-2xl mb-3"></i>
+        <span class="text-gray-600 text-sm font-medium">Monto detallado</span>
+    </a>
+    <a href="{{ url_for('client.records', type='withdraw') }}"
+        class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col items-center hover:shadow-md hover:border-liga-yellow transition">
+        <i class="fas fa-file-invoice-dollar text-liga-red text-2xl mb-3"></i>
+        <span class="text-gray-600 text-sm font-medium">Registros de retiros</span>
+    </a>
+    <a href="{{ url_for('client.records', type='recharge') }}"
+        class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col items-center hover:shadow-md hover:border-liga-yellow transition">
+        <i class="fas fa-history text-liga-blue text-2xl mb-3"></i>
+        <span class="text-gray-600 text-sm font-medium">Registros de recarga</span>
+    </a>
+    <a href="{{ url_for('client.withdrawal_account') }}"
+        class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col items-center hover:shadow-md hover:border-liga-yellow transition">
+        <i class="fas fa-gift text-liga-red text-2xl mb-3"></i>
+        <span class="text-gray-600 text-sm font-medium">Cuenta de retiro</span>
+    </a>
+    <a href="{{ url_for('auth.logout') }}"
+        class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col items-center hover:shadow-md hover:border-red-400 transition">
+        <i class="fas fa-sign-out-alt text-gray-500 text-2xl mb-3"></i>
+        <span class="text-gray-600 text-sm font-medium">Salir</span>
+    </a>
+</div>
+{% endblock %}

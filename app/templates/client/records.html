@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-liga-dark p-4 flex items-center text-white sticky top-0 z-30">
+    <a href="{{ url_for('client.profile') }}" class="w-8 h-8 flex items-center justify-center bg-white/20 rounded-lg">
+        <i class="fas fa-chevron-left text-sm"></i>
+    </a>
+    <h1 class="flex-grow text-center text-lg font-bold mr-8">Registros de {{ title }}</h1>
+</div>
+
+<div class="p-4">
+    <div class="bg-white rounded-lg shadow-md min-h-[60vh] p-2">
+        {% if transactions %}
+        <ul class="divide-y divide-gray-100">
+            {% for t in transactions %}
+            <li class="p-4">
+                <div class="flex justify-between items-start mb-1 text-xs text-gray-400">
+                    <span>{{ t.id }}000{{ t.user_id }}</span>
+                    <span>{{ t.date.strftime('%d-%m-%Y %H:%M:%S') }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-liga-dark font-bold text-lg">USD {{ "%.0f"|format(t.amount) }}</span>
+                    <span class="font-bold text-sm
+                        {% if t.status == 'approved' %}text-green-500
+                        {% elif t.status == 'rejected' %}text-liga-red
+                        {% else %}text-liga-blue{% endif %}">
+                        {% if t.status == 'approved' %}Exitosa
+                        {% elif t.status == 'rejected' %}Rechazada
+                        {% else %}Pendiente{% endif %}
+                    </span>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="flex flex-col items-center justify-center h-64 text-gray-400">
+            <p>No hay más datos</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

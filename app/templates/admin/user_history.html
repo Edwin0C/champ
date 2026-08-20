@@ -1,0 +1,117 @@
+{% extends "admin/base_admin.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-6 space-y-6">
+    <!-- Header -->
+    <div class="flex items-center gap-4">
+        <a href="{{ url_for('admin.dashboard') }}"
+            class="w-10 h-10 bg-amz-navy text-white rounded-lg flex items-center justify-center hover:bg-amz-dark transition">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div>
+            <h1 class="text-2xl font-bold text-amz-dark">Historial de {{ user.nombre }} {{ user.apellido }}</h1>
+            <p class="text-gray-500 text-sm">{{ user.username }} · ID #{{ user.id }} · Saldo: ${{ "%.2f"|format(user.balance) }}</p>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {% set deposits = transactions|selectattr('type', 'equalto', 'deposit')|list %}
+        {% set investments = transactions|selectattr('type', 'equalto', 'investment')|list %}
+        {% set claims = transactions|selectattr('type', 'equalto', 'claim')|list %}
+        {% set withdrawals = transactions|selectattr('type', 'equalto', 'withdraw')|list %}
+        
+        <div class="bg-white rounded-xl shadow p-4 border-l-4 border-green-500">
+            <p class="text-gray-500 text-xs">Recargas</p>
+            <p class="text-xl font-bold text-amz-dark">{{ deposits|length }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4 border-l-4 border-amz-blue">
+            <p class="text-gray-500 text-xs">Inversiones</p>
+            <p class="text-xl font-bold text-amz-dark">{{ investments|length }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4 border-l-4 border-amz-orange">
+            <p class="text-gray-500 text-xs">Reclamos</p>
+            <p class="text-xl font-bold text-amz-dark">{{ claims|length }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4 border-l-4 border-red-500">
+            <p class="text-gray-500 text-xs">Retiros</p>
+            <p class="text-xl font-bold text-amz-dark">{{ withdrawals|length }}</p>
+        </div>
+    </div>
+
+    <!-- Transactions Table -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="bg-amz-navy px-6 py-4 flex justify-between items-center">
+            <h2 class="text-lg font-bold text-white"><i class="fas fa-history mr-2"></i>Todos los movimientos</h2>
+            <span class="text-amz-gold text-sm font-medium">{{ transactions|length }} registros</span>
+        </div>
+
+        {% if transactions %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Monto</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Detalle</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for tx in transactions %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm text-gray-400">#{{ tx.id }}</td>
+                        <td class="px-6 py-4">
+                            {% if tx.type == 'deposit' %}
+                            <span class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">
+                                <i class="fas fa-arrow-down mr-1"></i>Recarga
+                            </span>
+                            {% elif tx.type == 'investment' %}
+                            <span class="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">
+                                <i class="fas fa-chart-line mr-1"></i>Inversión
+                            </span>
+                            {% elif tx.type == 'claim' %}
+                            <span class="bg-orange-100 text-orange-700 text-xs font-bold px-3 py-1 rounded-full">
+                                <i class="fas fa-gift mr-1"></i>Reclamo
+                            </span>
+                            {% elif tx.type == 'withdraw' %}
+                            <span class="bg-red-100 text-red-700 text-xs font-bold px-3 py-1 rounded-full">
+                                <i class="fas fa-arrow-up mr-1"></i>Retiro
+                            </span>
+                            {% else %}
+                            <span class="bg-gray-100 text-gray-700 text-xs font-bold px-3 py-1 rounded-full">
+                                {{ tx.type }}
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm font-bold
+                            {% if tx.type in ['deposit', 'claim'] %}text-green-600{% elif tx.type in ['investment', 'withdraw'] %}text-red-500{% else %}text-amz-dark{% endif %}">
+                            {% if tx.type in ['deposit', 'claim'] %}+{% elif tx.type in ['investment', 'withdraw'] %}-{% endif %}${{ "%.2f"|format(tx.amount) }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ tx.details or '—' }}</td>
+                        <td class="px-6 py-4">
+                            {% if tx.status == 'approved' %}
+                            <span class="bg-green-100 text-green-600 text-xs font-bold px-3 py-1 rounded-full">Aprobado</span>
+                            {% elif tx.status == 'pending' %}
+                            <span class="bg-yellow-100 text-yellow-600 text-xs font-bold px-3 py-1 rounded-full">Pendiente</span>
+                            {% elif tx.status == 'rejected' %}
+                            <span class="bg-red-100 text-red-600 text-xs font-bold px-3 py-1 rounded-full">Rechazado</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ tx.date.strftime('%d/%m/%Y %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="flex flex-col items-center justify-center h-48 text-gray-400">
+            <i class="fas fa-inbox text-4xl mb-3"></i>
+            <p class="font-medium">No hay movimientos registrados</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

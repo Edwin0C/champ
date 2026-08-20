@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Amazon Investment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'amz-navy': '#232F3E',
+                        'amz-dark': '#131921',
+                        'amz-orange': '#FF9900',
+                        'amz-gold': '#FEBD69',
+                        'amz-light': '#F3F3F3',
+                        'amz-blue': '#146EB4',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #EAEDED;
+        }
+    </style>
+</head>
+
+<body class="bg-[#EAEDED] min-h-screen">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="fixed top-4 right-4 z-50 space-y-2" id="flashContainer">
+        {% for category, message in messages %}
+        <div class="px-6 py-3 rounded-lg shadow-lg text-white font-medium text-sm animate-fade-in
+            {% if category == 'success' %}bg-green-500
+            {% elif category == 'danger' %}bg-red-500
+            {% elif category == 'warning' %}bg-yellow-500 text-gray-900
+            {% else %}bg-amz-blue{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    <script>setTimeout(function () { var el = document.getElementById('flashContainer'); if (el) el.style.display = 'none'; }, 5000);</script>
+    {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</body>
+
+</html>

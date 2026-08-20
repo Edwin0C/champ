@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Header -->
+<div class="bg-liga-dark p-4 flex items-center text-white sticky top-0 z-30">
+    <a href="{{ url_for('client.dashboard') }}" class="w-8 h-8 flex items-center justify-center bg-white/20 rounded-lg">
+        <i class="fas fa-chevron-left text-sm"></i>
+    </a>
+    <h1 class="flex-grow text-center text-lg font-bold mr-8">Recargar</h1>
+    <i class="fas fa-file-alt text-lg text-liga-yellow"></i>
+</div>
+
+<div class="p-4 space-y-6">
+    <!-- Balance Card -->
+    <div class="bg-white rounded-2xl p-6 shadow-md flex items-center border border-gray-200">
+        <div class="w-12 h-12 bg-liga-yellow rounded-full flex items-center justify-center text-liga-dark mr-4">
+            <i class="fas fa-coins text-2xl"></i>
+        </div>
+        <div>
+            <h2 class="text-2xl font-bold text-liga-dark">USD {{ "%.2f"|format(current_user.balance) }}</h2>
+            <p class="text-gray-500 text-sm">Saldo actual</p>
+        </div>
+    </div>
+
+    <!-- Amount Selection -->
+    <div>
+        <label class="block text-gray-700 font-bold mb-2">Monto</label>
+        <div class="bg-yellow-50 border-2 border-liga-yellow rounded-lg p-3 flex justify-between items-center mb-4">
+            <span class="text-liga-dark font-bold text-lg" id="displayAmount">18</span>
+            <i class="fas fa-sort text-liga-blue"></i>
+        </div>
+
+        <p class="text-liga-blue font-bold text-sm mb-3">Selecciona un valor rápido</p>
+        <div class="grid grid-cols-3 gap-3">
+            {% for val in [7, 18, 40, 100, 200, 400, 800, 1500, 1980] %}
+            <button type="button" onclick="selectAmount({{ val }})"
+                class="amount-btn bg-white border-2 border-gray-200 rounded-lg py-3 text-gray-700 font-medium hover:bg-yellow-50 hover:border-liga-yellow transition shadow-sm">
+                {{ val }}
+            </button>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Recharge Form -->
+    <form action="{{ url_for('client.recharge') }}" method="POST" id="rechargeForm">
+        <input type="hidden" name="amount" id="inputAmount" value="18">
+
+        <div class="mt-6">
+            <button type="submit"
+                class="w-full bg-gradient-to-b from-liga-gold to-liga-yellow text-liga-dark font-bold py-4 rounded-lg shadow-md hover:shadow-lg transition text-lg">
+                <i class="fab fa-telegram-plane mr-2"></i> Canal de pago
+            </button>
+        </div>
+    </form>
+
+    <!-- Instructions -->
+    <div class="bg-yellow-50 rounded-xl p-4 text-sm text-gray-600 space-y-2 border border-yellow-300">
+        <p class="font-bold text-liga-dark">Recordatorio de recarga:</p>
+        <ol class="list-decimal list-inside space-y-1">
+            <li>Importe mínimo de recarga: $7 USD.</li>
+            <li>El importe del pedido debe coincidir con el pago.</li>
+            <li>El servicio de recarga está disponible las 24 horas.</li>
+            <li>Si sus fondos no llegan en 10 minutos, contacte soporte.</li>
+        </ol>
+    </div>
+</div>
+
+<script>
+    function selectAmount(val) {
+        document.getElementById('inputAmount').value = val;
+        document.getElementById('displayAmount').innerText = val;
+        document.querySelectorAll('.amount-btn').forEach(btn => {
+            btn.classList.remove('bg-liga-yellow', 'text-liga-dark', 'border-liga-yellow');
+            btn.classList.add('bg-white', 'text-gray-700', 'border-gray-200');
+            if (btn.innerText.trim() == val.toString()) {
+                btn.classList.remove('bg-white', 'text-gray-700', 'border-gray-200');
+                btn.classList.add('bg-liga-yellow', 'text-liga-dark', 'border-liga-yellow');
+            }
+        });
+    }
+</script>
+{% endblock %}

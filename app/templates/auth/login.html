@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-white flex flex-col items-center pt-10 px-6">
+
+    <!-- Logo -->
+    <div class="w-full flex justify-center mb-8">
+        <div class="text-center">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" class="w-20 h-20 object-contain mx-auto mb-3 drop-shadow-lg">
+            <h1 class="text-3xl font-extrabold text-liga-dark">Champions<span class="text-liga-red">VIP</span></h1>
+        </div>
+    </div>
+
+    <!-- Login Form Container -->
+    <div class="w-full bg-white rounded-lg">
+
+        <form method="POST" action="{{ url_for('auth.login') }}" class="space-y-6">
+
+            <!-- Mobile Input -->
+            <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Número de móvil</label>
+                <div
+                    class="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden focus-within:border-liga-yellow transition">
+                    <div
+                        class="px-4 py-3 bg-gray-50 border-r border-gray-300 text-gray-600 flex items-center font-medium">
+                        <i class="fas fa-phone-alt mr-2 text-liga-blue"></i> +593
+                    </div>
+                    <input type="text" name="username" placeholder="987654321"
+                        class="w-full py-3 px-4 bg-white outline-none text-gray-700" required>
+                </div>
+            </div>
+
+            <!-- Password Input -->
+            <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Contraseña</label>
+                <div
+                    class="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden focus-within:border-liga-yellow transition">
+                    <div class="px-4 py-3 bg-gray-50 border-r border-gray-300 text-gray-600">
+                        <i class="fas fa-lock text-liga-blue"></i>
+                    </div>
+                    <input type="password" name="password" placeholder="Introduce tu contraseña..."
+                        class="w-full py-3 px-4 bg-white outline-none text-gray-700" required>
+                </div>
+            </div>
+
+            <!-- Login Button -->
+            <button type="submit"
+                class="w-full bg-gradient-to-b from-liga-gold to-liga-yellow hover:from-liga-yellow hover:to-yellow-400 text-liga-dark font-bold py-4 rounded-full shadow-lg transition duration-300 text-lg">
+                Iniciar sesión
+            </button>
+
+            <!-- Register Button -->
+            <a href="{{ url_for('auth.register') }}"
+                class="block w-full bg-liga-blue hover:bg-liga-dark text-white font-bold py-4 rounded-full transition duration-300 text-lg text-center">
+                Registrarse
+            </a>
+
+        </form>
+    </div>
+</div>
+{% endblock %}

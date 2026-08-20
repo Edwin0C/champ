@@ -1,0 +1,482 @@
+{% extends "admin/base_admin.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto p-6 space-y-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-amz-dark">Admin Dashboard</h1>
+            <p class="text-gray-500 text-sm mt-1">Gestión de usuarios y transacciones</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="bg-amz-gold text-amz-dark text-sm font-semibold px-4 py-2 rounded-full">
+                <i class="fas fa-shield-alt mr-1"></i> Administrador
+            </span>
+            <a href="{{ url_for('auth.logout') }}"
+                class="bg-red-500 hover:bg-red-600 text-white text-sm font-bold px-4 py-2 rounded-lg shadow transition">
+                <i class="fas fa-sign-out-alt mr-1"></i> Salir
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-amz-orange">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Usuarios registrados</p>
+                    <p class="text-3xl font-bold text-amz-dark">{{ users|length }}</p>
+                </div>
+                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-users text-amz-orange text-xl"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Recargas pendientes</p>
+                    <p class="text-3xl font-bold text-amz-dark">{{ pending_recharges|length }}</p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-clock text-green-500 text-xl"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-amz-blue">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Inversiones pendientes</p>
+                    <p class="text-3xl font-bold text-amz-dark">{{ pending_investments|length }}</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-chart-line text-amz-blue text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Recharges -->
+    {% if pending_recharges %}
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="bg-orange-50 px-6 py-4 border-b border-orange-200 flex items-center gap-2">
+            <i class="fas fa-exclamation-circle text-amz-orange"></i>
+            <h2 class="text-lg font-bold text-amz-dark">Solicitudes de Recarga Pendientes</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-amz-navy">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Usuario</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Monto</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Fecha</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Acción</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for tx in pending_recharges %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ tx.user.nombre }} {{ tx.user.apellido
+                            }}</td>
+                        <td class="px-6 py-4 text-sm text-green-600 font-bold">${{ "%.2f"|format(tx.amount) }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ tx.date.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td class="px-6 py-4 text-sm font-medium flex space-x-2">
+                            <form action="{{ url_for('admin.approve_recharge', tx_id=tx.id) }}" method="POST">
+                                <button type="submit"
+                                    class="bg-green-500 hover:bg-green-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition">
+                                    <i class="fas fa-check mr-1"></i> Aprobar
+                                </button>
+                            </form>
+                            <form action="{{ url_for('admin.reject_recharge', tx_id=tx.id) }}" method="POST">
+                                <button type="submit"
+                                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition">
+                                    <i class="fas fa-times mr-1"></i> Rechazar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Pending Investments -->
+    {% if pending_investments %}
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="bg-blue-50 px-6 py-4 border-b border-blue-200 flex items-center gap-2">
+            <i class="fas fa-chart-line text-amz-blue"></i>
+            <h2 class="text-lg font-bold text-amz-dark">Solicitudes de Inversión Pendientes</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-amz-navy">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Usuario</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Inversión</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Detalle</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Acción</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for tx in pending_investments %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ tx.user.nombre }} {{ tx.user.apellido
+                            }}</td>
+                        <td class="px-6 py-4 text-sm text-amz-blue font-bold">${{ "%.2f"|format(tx.amount) }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ tx.details }}</td>
+                        <td class="px-6 py-4 text-sm font-medium flex space-x-2">
+                            <form action="{{ url_for('admin.approve_recharge', tx_id=tx.id) }}" method="POST">
+                                <button type="submit"
+                                    class="bg-green-500 hover:bg-green-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition">Aprobar</button>
+                            </form>
+                            <form action="{{ url_for('admin.reject_recharge', tx_id=tx.id) }}" method="POST">
+                                <button type="submit"
+                                    class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition">Reembolsar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- User Management -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="bg-amz-navy px-6 py-4 flex justify-between items-center">
+            <h2 class="text-xl font-bold text-white"><i class="fas fa-users mr-2"></i> Gestión de Clientes</h2>
+            <span class="text-amz-gold text-sm font-medium" id="userCount">{{ users|length }} usuarios</span>
+        </div>
+
+        <!-- Search & Filters -->
+        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200 space-y-3">
+            <div class="flex flex-wrap gap-3 items-end">
+                <!-- Search by name/phone -->
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-xs font-bold text-gray-500 mb-1"><i
+                            class="fas fa-search mr-1"></i>Buscar</label>
+                    <input type="text" id="searchInput" placeholder="Nombre, apellido o teléfono..."
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-amz-orange focus:outline-none focus:ring-1 focus:ring-amz-orange">
+                </div>
+                <!-- Status filter -->
+                <div class="min-w-[140px]">
+                    <label class="block text-xs font-bold text-gray-500 mb-1"><i
+                            class="fas fa-filter mr-1"></i>Estado</label>
+                    <select id="statusFilter"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-amz-orange focus:outline-none focus:ring-1 focus:ring-amz-orange bg-white">
+                        <option value="all">Todos</option>
+                        <option value="active">Activos</option>
+                        <option value="disabled">Deshabilitados</option>
+                    </select>
+                </div>
+                <!-- Date filter -->
+                <div class="min-w-[150px]">
+                    <label class="block text-xs font-bold text-gray-500 mb-1"><i
+                            class="fas fa-calendar mr-1"></i>Desde</label>
+                    <input type="date" id="dateFrom"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-amz-orange focus:outline-none focus:ring-1 focus:ring-amz-orange">
+                </div>
+                <div class="min-w-[150px]">
+                    <label class="block text-xs font-bold text-gray-500 mb-1"><i
+                            class="fas fa-calendar mr-1"></i>Hasta</label>
+                    <input type="date" id="dateTo"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-amz-orange focus:outline-none focus:ring-1 focus:ring-amz-orange">
+                </div>
+                <!-- Sort -->
+                <div class="min-w-[160px]">
+                    <label class="block text-xs font-bold text-gray-500 mb-1"><i
+                            class="fas fa-sort-alpha-down mr-1"></i>Ordenar</label>
+                    <select id="sortSelect"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-amz-orange focus:outline-none focus:ring-1 focus:ring-amz-orange bg-white">
+                        <option value="default">Por defecto</option>
+                        <option value="az">Nombre A-Z</option>
+                        <option value="za">Nombre Z-A</option>
+                        <option value="newest">Más recientes</option>
+                        <option value="oldest">Más antiguos</option>
+                    </select>
+                </div>
+                <!-- Clear button -->
+                <div>
+                    <button onclick="clearFilters()"
+                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-lg text-sm font-medium transition"
+                        title="Limpiar filtros">
+                        <i class="fas fa-times mr-1"></i>Limpiar
+                    </button>
+                </div>
+            </div>
+            <p class="text-xs text-gray-400" id="filterInfo"></p>
+        </div>
+
+        <!-- Users Table -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200" id="usersTable">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usuario</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Teléfono</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Balance</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha registro</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for u in users %}
+                    <tr class="hover:bg-gray-50 user-row" data-name="{{ (u.nombre ~ ' ' ~ u.apellido)|lower }}"
+                        data-phone="{{ u.phone|lower }}" data-status="{{ 'disabled' if u.is_disabled else 'active' }}"
+                        data-date="{{ u.created_at.strftime('%Y-%m-%d') if u.created_at else '' }}">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold
+                                    {% if u.is_disabled %}bg-gray-400{% else %}bg-amz-orange{% endif %}">
+                                    {{ u.nombre[0] if u.nombre else '?' }}
+                                </div>
+                                <div>
+                                    <p class="font-bold text-amz-dark text-sm">{{ u.nombre }} {{ u.apellido }}</p>
+                                    <p class="text-gray-400 text-xs">{{ u.username }} · ID #{{ u.id }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ u.phone }}</td>
+                        <td class="px-6 py-4 text-sm font-bold text-amz-dark">${{ "%.2f"|format(u.balance) }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            {% if u.created_at %}
+                            {{ u.created_at.strftime('%d/%m/%Y') }}
+                            {% else %}
+                            <span class="text-gray-300">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if u.is_disabled %}
+                            <span
+                                class="bg-red-100 text-red-600 text-xs font-bold px-3 py-1 rounded-full">Deshabilitado</span>
+                            {% else %}
+                            <span
+                                class="bg-green-100 text-green-600 text-xs font-bold px-3 py-1 rounded-full">Activo</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-center gap-2">
+                                <button onclick="toggleEdit({{ u.id }})"
+                                    class="bg-amz-orange hover:bg-yellow-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition"
+                                    title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a href="{{ url_for('admin.user_history', user_id=u.id) }}"
+                                    class="bg-amz-blue hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition"
+                                    title="Ver historial">
+                                    <i class="fas fa-history"></i>
+                                </a>
+                                <form action="{{ url_for('admin.toggle_user', user_id=u.id) }}" method="POST"
+                                    class="inline">
+                                    <button type="submit"
+                                        class="{% if u.is_disabled %}bg-green-500 hover:bg-green-600{% else %}bg-yellow-500 hover:bg-yellow-600{% endif %} text-white px-3 py-1.5 rounded-lg text-xs font-bold transition"
+                                        title="{% if u.is_disabled %}Habilitar{% else %}Deshabilitar{% endif %}">
+                                        <i
+                                            class="fas {% if u.is_disabled %}fa-check-circle{% else %}fa-ban{% endif %}"></i>
+                                    </button>
+                                </form>
+                                <form action="{{ url_for('admin.delete_user', user_id=u.id) }}" method="POST"
+                                    class="inline"
+                                    onsubmit="return confirm('¿Eliminar a {{ u.nombre }} {{ u.apellido }}?')">
+                                    <button type="submit"
+                                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition"
+                                        title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- Expandable Edit Panel -->
+                    <tr id="editPanel-{{ u.id }}" class="hidden edit-panel-row" data-parent-id="{{ u.id }}">
+                        <td colspan="6" class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Edit Form -->
+                                <div>
+                                    <h3 class="text-sm font-bold text-gray-700 mb-3"><i
+                                            class="fas fa-user-edit mr-1 text-amz-orange"></i> Editar datos</h3>
+                                    <form action="{{ url_for('admin.edit_user', user_id=u.id) }}" method="POST"
+                                        class="space-y-3">
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label class="block text-xs font-bold text-gray-500 mb-1">Nombre</label>
+                                                <input type="text" name="nombre" value="{{ u.nombre }}"
+                                                    class="w-full px-3 py-2 border rounded-lg text-sm focus:border-amz-orange focus:outline-none">
+                                            </div>
+                                            <div>
+                                                <label
+                                                    class="block text-xs font-bold text-gray-500 mb-1">Apellido</label>
+                                                <input type="text" name="apellido" value="{{ u.apellido }}"
+                                                    class="w-full px-3 py-2 border rounded-lg text-sm focus:border-amz-orange focus:outline-none">
+                                            </div>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label
+                                                    class="block text-xs font-bold text-gray-500 mb-1">Teléfono</label>
+                                                <input type="text" name="phone"
+                                                    value="{{ u.phone.replace('+593', '') }}" maxlength="9"
+                                                    class="w-full px-3 py-2 border rounded-lg text-sm focus:border-amz-orange focus:outline-none">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-bold text-gray-500 mb-1">Balance
+                                                    (USD)</label>
+                                                <input type="number" step="0.01" name="balance" value="{{ u.balance }}"
+                                                    class="w-full px-3 py-2 border rounded-lg text-sm focus:border-amz-orange focus:outline-none">
+                                            </div>
+                                        </div>
+                                        <button type="submit"
+                                            class="bg-gradient-to-b from-amz-gold to-amz-orange text-amz-dark font-bold px-6 py-2 rounded-lg text-sm shadow hover:shadow-md transition">
+                                            <i class="fas fa-save mr-1"></i> Guardar cambios
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <!-- Recharge Section -->
+                                <div>
+                                    <h3 class="text-sm font-bold text-gray-700 mb-3"><i
+                                            class="fas fa-wallet mr-1 text-green-500"></i> Recargar balance</h3>
+                                    <form action="{{ url_for('admin.admin_recharge', user_id=u.id) }}" method="POST">
+                                        <div class="grid grid-cols-3 gap-2 mb-3">
+                                            {% for val in [7, 18, 40, 100, 200, 400, 800, 1500, 1980] %}
+                                            <label class="cursor-pointer">
+                                                <input type="radio" name="amount" value="{{ val }}" class="hidden peer"
+                                                    {% if val==18 %}checked{% endif %}>
+                                                <div
+                                                    class="text-center py-2 border-2 border-gray-200 rounded-lg text-sm font-medium text-gray-600 peer-checked:border-amz-orange peer-checked:bg-orange-50 peer-checked:text-amz-orange hover:border-amz-gold transition">
+                                                    ${{ val }}
+                                                </div>
+                                            </label>
+                                            {% endfor %}
+                                        </div>
+                                        <button type="submit"
+                                            class="w-full bg-green-500 hover:bg-green-600 text-white font-bold px-5 py-2 rounded-lg text-sm shadow transition">
+                                            <i class="fas fa-plus-circle mr-1"></i> Recargar
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleEdit(id) {
+        var panel = document.getElementById('editPanel-' + id);
+        panel.classList.toggle('hidden');
+    }
+
+    // --- Filter & Sort Logic ---
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const dateFrom = document.getElementById('dateFrom');
+    const dateTo = document.getElementById('dateTo');
+    const sortSelect = document.getElementById('sortSelect');
+    const filterInfo = document.getElementById('filterInfo');
+    const userCount = document.getElementById('userCount');
+    const tbody = document.querySelector('#usersTable tbody');
+
+    function applyFilters() {
+        const search = searchInput.value.toLowerCase().trim();
+        const status = statusFilter.value;
+        const from = dateFrom.value;
+        const to = dateTo.value;
+        const rows = document.querySelectorAll('.user-row');
+        let visible = 0;
+
+        rows.forEach(row => {
+            const name = row.dataset.name;
+            const phone = row.dataset.phone;
+            const rowStatus = row.dataset.status;
+            const rowDate = row.dataset.date;
+            const editPanel = row.nextElementSibling;
+
+            let show = true;
+
+            // Text search (name or phone)
+            if (search && !name.includes(search) && !phone.includes(search)) {
+                show = false;
+            }
+
+            // Status filter
+            if (status !== 'all' && rowStatus !== status) {
+                show = false;
+            }
+
+            // Date range
+            if (from && rowDate && rowDate < from) show = false;
+            if (to && rowDate && rowDate > to) show = false;
+
+            row.style.display = show ? '' : 'none';
+            if (editPanel && editPanel.classList.contains('edit-panel-row')) {
+                if (!show) editPanel.style.display = 'none';
+                else editPanel.style.display = '';
+            }
+
+            if (show) visible++;
+        });
+
+        userCount.textContent = visible + ' usuarios';
+        if (search || status !== 'all' || from || to) {
+            filterInfo.textContent = 'Mostrando ' + visible + ' de ' + rows.length + ' usuarios';
+        } else {
+            filterInfo.textContent = '';
+        }
+    }
+
+    function applySorting() {
+        const sortVal = sortSelect.value;
+        const rows = Array.from(document.querySelectorAll('.user-row'));
+        const pairs = [];
+
+        rows.forEach(row => {
+            const editPanel = row.nextElementSibling;
+            pairs.push({ row, editPanel: (editPanel && editPanel.classList.contains('edit-panel-row')) ? editPanel : null });
+        });
+
+        pairs.sort((a, b) => {
+            if (sortVal === 'az') {
+                return a.row.dataset.name.localeCompare(b.row.dataset.name);
+            } else if (sortVal === 'za') {
+                return b.row.dataset.name.localeCompare(a.row.dataset.name);
+            } else if (sortVal === 'newest') {
+                return (b.row.dataset.date || '').localeCompare(a.row.dataset.date || '');
+            } else if (sortVal === 'oldest') {
+                return (a.row.dataset.date || '').localeCompare(b.row.dataset.date || '');
+            }
+            return 0;
+        });
+
+        pairs.forEach(p => {
+            tbody.appendChild(p.row);
+            if (p.editPanel) tbody.appendChild(p.editPanel);
+        });
+
+        applyFilters();
+    }
+
+    function clearFilters() {
+        searchInput.value = '';
+        statusFilter.value = 'all';
+        dateFrom.value = '';
+        dateTo.value = '';
+        sortSelect.value = 'default';
+        applyFilters();
+    }
+
+    searchInput.addEventListener('input', applyFilters);
+    statusFilter.addEventListener('change', applyFilters);
+    dateFrom.addEventListener('change', applyFilters);
+    dateTo.addEventListener('change', applyFilters);
+    sortSelect.addEventListener('change', applySorting);
+</script>
+{% endblock %}

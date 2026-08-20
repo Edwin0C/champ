@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Top Banner Area -->
+<div class="bg-gradient-to-b from-liga-dark to-liga-blue pb-16 pt-8 px-4 rounded-b-3xl">
+    <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 text-center">
+        <div class="h-32 bg-white/10 rounded-xl flex items-center justify-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-liga-blue via-liga-dark to-liga-red opacity-80"></div>
+            <div class="relative z-10 flex flex-col items-center">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" class="w-16 h-16 object-contain drop-shadow-lg mb-1">
+                <h2 class="text-liga-yellow font-extrabold text-2xl drop-shadow-md">Champions<span class="text-white">VIP</span></h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="px-4 -mt-8 relative z-10 grid grid-cols-3 gap-2 mb-6">
+    <a href="{{ url_for('client.my_products') }}" class="flex flex-col items-center">
+        <div class="w-12 h-12 bg-liga-yellow rounded-full flex items-center justify-center text-liga-dark shadow-md mb-1">
+            <i class="fas fa-calendar-check text-xl"></i>
+        </div>
+        <span class="text-xs text-gray-700 font-medium">Reclamar</span>
+    </a>
+    <a href="{{ url_for('client.recharge') }}" class="flex flex-col items-center">
+        <div class="w-12 h-12 bg-liga-red rounded-full flex items-center justify-center text-white shadow-md mb-1">
+            <i class="fas fa-wallet text-xl"></i>
+        </div>
+        <span class="text-xs text-gray-700 font-medium">Recargar</span>
+    </a>
+    <a href="{{ url_for('client.withdrawal_account') }}" class="flex flex-col items-center">
+        <div class="w-12 h-12 bg-liga-blue rounded-full flex items-center justify-center text-liga-yellow shadow-md mb-1">
+            <i class="fas fa-hand-holding-usd text-xl"></i>
+        </div>
+        <span class="text-xs text-gray-700 font-medium">Retirar</span>
+    </a>
+</div>
+
+
+<!-- Product List -->
+<div class="px-4 pb-4 space-y-4">
+    {% for product in products %}
+    <div class="bg-white rounded-xl shadow-md p-4 flex flex-col relative overflow-hidden border border-gray-200">
+        <!-- Duration Badge -->
+        <span class="absolute top-0 right-0 bg-liga-red text-white text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
+            Días: {{ product.days_duration }} Días
+        </span>
+
+        <div class="flex">
+            <!-- Product Image -->
+            <div class="w-1/3">
+                <img src="{{ product.image_url }}" class="w-24 h-24 object-contain">
+            </div>
+
+            <!-- Details -->
+            <div class="w-2/3 pl-4 pt-4">
+                <h3 class="font-bold text-liga-dark text-lg mb-1">{{ product.title }}</h3>
+
+                <div class="grid grid-cols-2 gap-2 text-xs mb-2">
+                    <div>
+                        <p class="text-liga-red font-bold text-sm">USD {{ "%.0f"|format(product.daily_income) }}</p>
+                        <p class="text-gray-400">Días (Ingreso)</p>
+                    </div>
+                    <div>
+                        <p class="text-liga-red font-bold text-sm">USD {{ "%.0f"|format(product.total_income) }}</p>
+                        <p class="text-gray-400">Ingresos totales</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+            <div>
+                <span class="text-gray-400 text-xs">Precio</span>
+                <span class="text-liga-dark font-bold text-lg ml-1">USD {{ "%.0f"|format(product.price) }}</span>
+            </div>
+
+            <button
+                onclick="openInvestModal('{{ product.id }}', '{{ product.title }}', '{{ product.price }}', '{{ product.daily_income }}', '{{ product.total_income }}')"
+                class="bg-gradient-to-b from-liga-gold to-liga-yellow hover:from-liga-yellow hover:to-yellow-400 text-liga-dark font-bold py-2 px-6 rounded-full text-sm shadow-md transition transform active:scale-95">
+                Invertir ahora
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Investment Confirmation Modal -->
+<div id="investModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
+    <div class="bg-white rounded-xl w-10/12 max-w-sm overflow-hidden shadow-2xl animate-fade-in-up">
+
+        <!-- Header -->
+        <div class="bg-liga-blue p-4 text-white text-center relative">
+            <h3 class="text-lg font-bold">Confirmar Inversión</h3>
+            <button onclick="closeInvestModal()" class="absolute right-4 top-4 text-white/80 hover:text-white"><i
+                    class="fas fa-times"></i></button>
+        </div>
+
+        <form id="investForm" method="POST" action="">
+            <div class="p-6 space-y-4">
+                <div class="text-center mb-4">
+                    <p class="text-gray-500 text-sm">Producto</p>
+                    <h4 class="text-xl font-bold text-liga-dark" id="modalTitle">Token VIP</h4>
+                </div>
+
+                <div class="bg-yellow-50 rounded-lg p-4 space-y-2 border border-yellow-300">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600 text-sm">Precio:</span>
+                        <span class="font-bold text-liga-dark" id="modalPrice">$0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600 text-sm">Ingreso Diario:</span>
+                        <span class="font-bold text-liga-red" id="modalDaily">$0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600 text-sm">Ingreso Total:</span>
+                        <span class="font-bold text-liga-red" id="modalTotal">$0</span>
+                    </div>
+                </div>
+
+                <p class="text-xs text-center text-gray-500 mt-2">
+                    Se descontará el precio de tu saldo. Podrás reclamar ganancias cada 24 horas.
+                </p>
+            </div>
+
+            <div class="p-4 bg-gray-50 flex justify-center space-x-3">
+                <button type="button" onclick="closeInvestModal()"
+                    class="px-6 py-2 rounded-full border border-gray-300 text-gray-600 font-medium hover:bg-gray-100 transition">Cancelar</button>
+                <button type="submit"
+                    class="px-6 py-2 rounded-full bg-gradient-to-b from-liga-gold to-liga-yellow text-liga-dark font-bold shadow-lg hover:shadow-xl transition transform active:scale-95">Confirmar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Welcome Modal -->
+<div id="welcomeModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
+    <div class="bg-white rounded-lg w-10/12 max-w-sm p-0 overflow-hidden shadow-2xl relative animate-bounce-in">
+        <!-- Header -->
+        <div class="bg-liga-dark p-4 border-b flex justify-between items-center relative">
+            <h3 class="text-lg font-bold text-center w-full text-white">Bienvenido a ChampionsVIP</h3>
+            <button onclick="closeModal()"
+                class="absolute right-4 text-liga-yellow font-bold hover:bg-white/10 rounded-full p-1"><i
+                    class="fas fa-times"></i></button>
+        </div>
+
+        <!-- Content -->
+        <div class="p-6 text-sm text-gray-700 space-y-2 max-h-[60vh] overflow-y-auto">
+            <p>Bono de Registro: $3</p>
+            <p>Registro Diario: $0.1</p>
+            <p>Reembolso por Inversión de hasta un 33%: Nivel 1 30%, Nivel 2 2%, Nivel 3 1%</p>
+            <p>Invierte $7 y gana $1 al día.</p>
+            <p>Invierte $18 y gana $3 al día.</p>
+            <p class="mt-4">Únete a nuestro grupo de Telegram para obtener los últimos códigos.</p>
+        </div>
+
+        <!-- Footer -->
+        <div class="p-4 bg-gray-50 flex justify-center">
+            <a href="https://t.me/innovandosiempre"
+                class="bg-gradient-to-b from-liga-gold to-liga-yellow text-liga-dark font-bold py-3 px-8 rounded-full shadow-lg flex items-center">
+                <i class="fas fa-rocket mr-2"></i> Join the Telegram group
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Show modal on load if not visited
+    window.onload = function () {
+        if (!sessionStorage.getItem('welcomeShown')) {
+            document.getElementById('welcomeModal').classList.remove('hidden');
+            sessionStorage.setItem('welcomeShown', 'true');
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('welcomeModal').classList.add('hidden');
+    }
+
+    function openInvestModal(productId, title, price, daily, total) {
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalPrice').textContent = '$' + parseFloat(price).toFixed(0);
+        document.getElementById('modalDaily').textContent = '$' + parseFloat(daily).toFixed(0);
+        document.getElementById('modalTotal').textContent = '$' + parseFloat(total).toFixed(0);
+        document.getElementById('investForm').action = '/invest/' + productId;
+        document.getElementById('investModal').classList.remove('hidden');
+    }
+
+    function closeInvestModal() {
+        document.getElementById('investModal').classList.add('hidden');
+    }
+</script>
+{% endblock %}

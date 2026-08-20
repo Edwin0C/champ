@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-liga-dark p-4 flex items-center text-white sticky top-0 z-30">
+    <a href="{{ url_for('client.dashboard') }}" class="w-8 h-8 flex items-center justify-center bg-white/20 rounded-lg">
+        <i class="fas fa-chevron-left text-sm"></i>
+    </a>
+    <h1 class="flex-grow text-center text-lg font-bold mr-8">Servicio al cliente</h1>
+</div>
+
+<!-- Background -->
+<div class="fixed inset-0 bg-gradient-to-b from-liga-blue to-liga-dark -z-10"></div>
+
+<div class="p-6 space-y-6 pt-12 flex flex-col items-center">
+
+    <!-- Telegram Group Card -->
+    <div
+        class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 w-full max-w-sm text-center text-white shadow-xl">
+        <div class="w-16 h-16 bg-liga-yellow rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <i class="fab fa-telegram-plane text-3xl text-liga-dark"></i>
+        </div>
+        <h3 class="font-bold text-lg mb-2">Grupo oficial</h3>
+        <p class="text-xs mb-6 opacity-80">Horario de atención al cliente: 10:00 a.m. a 8:00 p.m.</p>
+        <a href="https://t.me/innovandosiempre" target="_blank" rel="noopener noreferrer"
+            class="bg-gradient-to-b from-liga-gold to-liga-yellow text-liga-dark font-bold py-2 px-6 rounded-lg shadow hover:from-liga-yellow hover:to-yellow-400 transition inline-block">
+            Contáctanos
+        </a>
+    </div>
+
+    <!-- Telegram Channel Card -->
+    <div
+        class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 w-full max-w-sm text-center text-white shadow-xl">
+        <div class="w-16 h-16 bg-liga-red rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <i class="fab fa-telegram-plane text-3xl text-white"></i>
+        </div>
+        <p class="text-xs mb-6 opacity-80">Canal de Telegram: 24 horas</p>
+        <a href="https://t.me/innovandosiempre" target="_blank" rel="noopener noreferrer"
+            class="bg-gradient-to-b from-liga-gold to-liga-yellow text-liga-dark font-bold py-2 px-6 rounded-lg shadow hover:from-liga-yellow hover:to-yellow-400 transition inline-block">
+            Únete al canal de Telegram
+        </a>
+    </div>
+
+</div>
+{% endblock %}
